@@ -1,5 +1,11 @@
 import Transaction from '../models/Transaction';
 
+interface CreateTransactionDTO {
+  title: string;
+  value: number;
+  type: 'income' | 'outcome';
+}
+
 interface Balance {
   income: number;
   outcome: number;
@@ -14,15 +20,45 @@ class TransactionsRepository {
   }
 
   public all(): Transaction[] {
-    // TODO
+    return this.transactions;
   }
 
   public getBalance(): Balance {
-    // TODO
+    const balanceIncome = this.transactions.reduce(
+      (accumulator, currentValue) => {
+        if (currentValue.type === 'income') {
+          return accumulator + currentValue.value;
+        }
+        return accumulator;
+      },
+      0,
+    );
+
+    const balanceOutcome = this.transactions.reduce(
+      (accumulator, currentValue) => {
+        if (currentValue.type === 'outcome') {
+          return accumulator + currentValue.value;
+        }
+        return accumulator;
+      },
+      0,
+    );
+
+    const balanceTotal = balanceIncome - balanceOutcome;
+
+    return {
+      income: balanceIncome,
+      outcome: balanceOutcome,
+      total: balanceTotal,
+    };
   }
 
-  public create(): Transaction {
-    // TODO
+  public create({ title, value, type }: CreateTransactionDTO): Transaction {
+    const transaction = new Transaction({ title, value, type });
+
+    this.transactions.push(transaction);
+
+    return transaction;
   }
 }
 
